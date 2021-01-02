@@ -1,0 +1,154 @@
+def hesaplama(pol1, pol2, islem_turu):  # Hesaplama metodu listeye ayrilmis iki polinomu islem_turu ne dikkat ederek islem yaptiran bir metod.
+    h_sonucu = []  # h_sonucu listesi islem sonucunu tutulmasi icin tanimliyoruz.
+    for i in pol1:  # Buradaki for un kullanim amaci pol1 in icindeki tum liste elemanlarini tek tek h_sonucu listemize kopyalamak ayni durumu pol2 de de goruyoruz.
+        h_sonucu.append(i)  # Kopyalamamizdaki amac iki listeyi birbirine karistirmak sonrasinda ayni usse sahip olanlari toplamak.
+    if islem_turu == "-":  # Eger islem cikarma olarak secilmis ise de 2.listeyi once - ile carpip oyle toplamak.
+        pol2 = cikarma_islemi(pol2)
+    for i in pol2:
+        h_sonucu.append(i)
+    for i in range(len(h_sonucu)):  # Bu kisimda eger liste icerisinde ayni usse sahip polinomlar yer aliyorsa bunlari topluyoruz ve listeden eleman azaltimina gidiyoruz ayni usse sahip olanlari yoplayarak.
+        j = i + 1
+        while j < len(h_sonucu):
+            if h_sonucu[i][1] == h_sonucu[j][1]:
+                h_sonucu[i][0] = h_sonucu[i][0] + h_sonucu[j][0]
+                h_sonucu.remove(h_sonucu[j])
+                j -= 1
+            j += 1
+    return h_sonucu  # Islemlerimiz sonucu liste hesaplanmis sekilde geri gonderiyoruz.
+
+
+def cikarma_islemi(pol):  # Cikarma islemi secildiyse 2. liste olan pol geliyor parametre olarak ve katsayi kismi - ile carpilip geri gonderiliyor.
+    for i in range(len(pol)):
+        pol[i][0] = pol[i][0] * -1
+    return pol
+
+
+def birlestirme(pol):  # Islem sonrasi ekrana bastirmak icin birlestirme fonksiyonuna geliyor. Bu kisimda listemizdeki ifadeleri icindeki degerlere gore string e ceviriyoruz.
+    string = ""
+    x = "x"
+    ussu = "^"
+    pol = siralama(pol)  # Ekranda daha guzel gorunmesi icin siralama metoduna gonderiyoruz ve siralanmis sekilde geri aliyoruz.
+    if pol[(len(pol) - 1)][0] == 0:  # Sabit sayi var mi yok mu kontrol ediliyor ve sabit sayi varsa kullanicinin verdigi degerler sonucunda for da dongu sayisini planlamak icin kullaniyoruz.
+        donme_degeri = len(pol) - 1
+    else:
+        donme_degeri = len(pol)
+    for i in range(donme_degeri):
+        if (pol[i][0] == 0 and pol[i][1] == 0) or (pol[i][0] == 0 and pol[i][1] != 0):  # Eger sabit deger yoksa ve eger katsayisi 0 olan polinom varsa yazdirmamak icin kullaniyoruz.
+            pass
+        else:
+            if pol[i][1] == 0:  # Us eger 0 ise sabit sayi anlamina geliyor ve sabit sayilari yazmak icin kullaniyoruz
+                string += str(pol[i][0])
+            else:  # Normal katsayisi ve ussu olan polinomlari stringe donusturuyoruz.
+                string += str(pol[i][0]) + x + ussu + str(pol[i][1])
+        if i < len(pol) - 1 and pol[i + 1][0] > 0:  # Sabit sayi pozitifse araya + koyuyoruz - ise gerek yok kendi koyuyor isaretini zaten.
+            string += "+"
+    return string  # Yukaridaki tum islemler sonucunda listemiz artik stringe cevrilmis anlayabilecegimiz hale burunuyor.
+
+
+def siralama(pol):  # Siralama methodunu goze guzel gorunmesi icin ve listenin sonunda sabit degeri string birlestirmesi yaparken onune + - koyarken isimizi kolaylastirmasi icin kullaniyoruz.
+    n = len(pol)
+    for i in range(n - 1):  # Katsayilarina gore siralama gerceklestiriyoruz.
+        for j in range(0, n - i - 1):
+            if pol[j][1] < pol[j + 1][1]:
+                pol[j], pol[j + 1] = pol[j + 1], pol[j]
+    return pol
+
+
+def gereksizleri_sil(string):  # Kullanici yanlislikla bosluk girmisse ve programimizin isleyisini * bozdugu icin kullanici eger girmisse bunlari cikariyor bu method.
+    while True:
+        if " " in string:
+            string = string.replace(" ", "")
+        if "*" in string:
+            string = string.replace("*", "")
+        if not (" " in string or "*" in string):
+            break
+    return string
+
+
+def ayir(pol):  # Liste kullanicindan alindiginda string olarak tutuluyor polinom uzerinde islem yapmak icin listeye cevirmemiz gerekiyor. Bu metodda listeye cevirme islemi gerceklestiriliyor.
+    pol = gereksizleri_sil(pol)  # Ayirma oncesi olasi hatalari engellemek adina gereksiz string karakterlerini kaldiriyoruz.
+    index_degeri = pol.count("x") + 1  # Sonuc donduren bir listemiz olacak ve bu listede ilk once yer acmamiz gerekiyor yoksa porgram hata vermekte [[0,0][0,0]] gibi.
+    a_sonucu = []
+    if index_degeri == 1:  # Eger sadece bir sabit sayi varsa kullanicinin girdigi string icerisine yaziyoruz.
+        a_sonucu.append([int(pol), 0])
+    else:
+        a_sonucu = [[0] * 2 for i in range(index_degeri)]  # Bu kisimda yer acma islemi gerceklesmekte
+        deger1 = 0  # Deger1 stringimizde gelen polinomun katsayilarini tutacak olan kismin indexi.
+        deger2 = 0  # Ayni sekilde bu da polinomun derecesini tutacak olan kismin indexi.
+        while True:
+            sol_index = 0
+            temp = pol.find("x")  # Bu metodda ayirmayi x leri bulup onlarin bulundugu yer indexleri kullanarak yapiyoruz.
+            index = temp
+            # Sol kisim: x e gore ayirdigimizi soyledim once sola giderek x in katsayisini almamiz gerekiyor eger varsa.
+            if index == 0:  # Eger stringin alindi x string ile ayni konumda yani 0. indexte ise su anlama gelir pol: x^... yani x in katsayisi 1 dir o yuzden listemizin ilk listesine ilk kisma 1 i atiyoruz
+                a_sonucu[deger1][deger2] = 1
+            elif pol[index-1] == "+":  # Eger string icindeki pol: +x^... ise 1 yaziyoruz liste icersine.
+                a_sonucu[deger1][deger2] = 1
+                sol_index = index - 1
+            elif pol[index-1] == "-":  # Eger string icindeki pol: -x^... ise -1 yaziyoruz liste icersine.
+                a_sonucu[deger1][deger2] = -1
+                sol_index = index - 1
+            else:  # Eger x in onunde + - veya hicbir sey olmamasi durumu degilde pol:(sayi)x^... gibi bir durum soz konusuysa diger islemlere geciyoruz.
+                while index != 0:  # Index x e gore ayarliydi geriye geldikce artik sayilarin basina yani stringin basina dogru hareket edicek ve ne zaman string bitiyor o zmn duruyor.
+                    index -= 1
+                    sol_index = index
+                    if pol[index] == "+" or pol[index] == "-":  # Index stringin basina dogru giderken eger arada bir sabit sayi olursa ondan ayrilmak icin kesinlikle + veya - kullanilmistir ornegin pol:23+423x^... .
+                        sol_index = index  # indexler bu durumlara gore degisiyor ve sol_dedigimiz kavram stringde alacagimiz xin katsayisinin basinin indexini tutuyor.
+                        break
+                a_sonucu[deger1][deger2] = int(pol[sol_index:temp])  # Dongu sonrasinda sayinin basindan x e kadar olan kisim listemize katsayi kismina eklenmis olur. orn pol: 23x^... katsayi sonuc listesi = [[23,Henuzbilinmiyor]...] .
+            index = temp + 1
+            value2 = 1
+            # Sag kisim: x in katsayisini aldik simdi sira derecesini almak.
+            if len(pol) == index:  # Eger polinomun uzunlugu index e esitse (yukarida arttirdik) array index out hatasini engellemek icin bir azaltip devam ediyoruz.
+                index -= 1
+            if pol[index] != "^":  # Kontrol etmemiz gereken kavram ^ karakteri kullaniliyor mu eger kullanilmiyorsa giriyor ve 1 degerini atiyor dereceye. orn pol: ...x (burada x in saginda ^ isareti yok ve program bunu 1 diye anlamasini sagliyoruz.
+                a_sonucu[deger1][value2] = 1
+                if index+1 == len(pol):  # Tek x li bir ifade girildiginde hata almamak icin bu kisimda indexi 1 arttirmamiz gerekiyor.
+                    index += 1
+            else:  # Eger ^ karakteri varsa.
+                index += 1  # Index uzerinde arttirarak stringin sonuna dogru yaklasmaya devam ediyoruz.
+                sag_index = index
+                while index < len(pol)-1:  # Stringde herhangi bir ifade kalmayana kadar donduruyoruz.
+                    index += 1
+                    if pol[index] == "-" or pol[index] == "+":  # Index saga dogru giderken + - gibi bir ifade ile karsilastiginda durmasini sagliyoruz. orn pol: ...x^234-2x+4... diye uzuyor stringimiz xin sagindaki 234 almaya calisiyoruz ve 4 ten sonra goruldugu uzere - var onu gorunce durmasini burada sagliyoruz.
+                        break
+                if not index < len(pol) - 1:  # Kodun sonunda sabit degerli kisimlarda ve polinom kisimlarinda - + durumlarinda indexi oynatmamiz gerekmekte olabiliyor bu yuzden burda programin hatasiz calisabilmesi icin bu kodu yazmak gerekiyor. Hata ararken buldugum ve yazdigim bir kod parcasi.
+                    index += 1
+                    a_sonucu[deger1][value2] = int(pol[sag_index:index])  # Degerleri listemize attigimiz kisim burasi sag index x in yanindaki ^ karakterinin yanindaki sayidan baslayarak index e kadar yaziyor. orn pol: ...x^23+4... [[biliniyor(uc noktali kisim), 23]...] seklinde.
+                else:
+                    a_sonucu[deger1][value2] = int(pol[sag_index:index])
+                if a_sonucu[deger1][value2] < 0:  # Burada girilen polinomlarda uslerin dogal sayi olup olmadigi kontrol ediliyor.
+                    print("Gecersiz polinom girildi. Polinomlarda x in derecesi doğal sayı olmalıdır.")
+                    exit(0)  # Program kendini kapatiyor.
+            pol = pol.replace(pol[sol_index:index], "")  # Burasi cok onemli cunku listeye atilan string kisminin silinmesini burada yapiyoruz. Her listeye bir sey attigimizda attigimiz string kismini buradan siliyoruz ki tekrar tekar ayni seyleri kontrol etmeyelim listeye atmaya calismayalim.
+            deger1 += 1
+            deger2 = 0
+            if "x" not in pol:  # Strinde listeye attigimiz kismi sildigimizi az once gorduk. Baska x var mi diye soruyoruz yok ise girecek donguyu sonrasinda da metodu bitirecegiz.
+                if "" != pol:  # Dongunun tamamen bittigine emin olmak adina soruyoruz. Cunku dongude sabit x siz bir ifade de kalmis olabilir.
+                    a_sonucu[deger1][deger2] = int(pol)  # Eger oyleyse onu da listeye yolluyoruz ve donguyu durdurup sonucumuzu return ediyoruz.
+                break
+    return a_sonucu
+
+# -----Test kismi-----
+print("-----Polinom Toplama ve Cikarma Programi-----\n# Her iki polinomu da tek satirda giriniz."
+      "\n# Polinomu yazarken nokta, virgul, parantez gibi ifadeler kullanmayiniz. "
+      "\n# Kullandiginizda program hata mesaji ekrana verecek ve kapanacaktir.\n# Ornek program ciktisi: "
+      "\n#   Ilk polinom: 4x^5+2x^3-5x+4 \n#   Ikici polinom: 3x^3+4x+5 "
+      "\n#   Toplamak icin +, cikarmak icin - girin: +\n#   Sonuc: 4x^5+5x^3-1x^1+9\n")
+birinci_pol = input('Ilk polinom: ')
+ikinci_pol = input('Ikinci polinom: ')
+hangisi = input('Toplamak icin +, cikarmak icin - girin: ')  # Toplama mi cikarilma mi olacagini sorguluyoruz.
+try:  # Olasi hatalari engellemek adina try-except yapisini kullaniyoruz.
+    ilk = ayir(gereksizleri_sil(birinci_pol))  # Gereksiz bosluk ve "*" isareti kullanilmissa bunlari siliyoruz.
+    iki = ayir(gereksizleri_sil(ikinci_pol))  # Ve liste seklinde tutabilmek adina ayirma metoduna yolluyoruz.
+    if hangisi == "+":
+        sonuc = hesaplama(ilk, iki, "+")  # liste seklinde tutulan iki degiskeni islem yapmak icin hesaplama metoduna yolluyoruz.
+        print("\nSonuc: " + birlestirme(sonuc))
+    elif hangisi == "-":
+        sonuc = hesaplama(ilk, iki, "-")
+        print("\nSonuc: " + birlestirme(sonuc))  # Hesaplama sonucunda string olarak degeri ekrana bastirmak icin birlestirme metoduna yolluyoruz.
+    else:  # + veya - den baska bir karakter girildiginde hata mesaji verdiriyoruz.
+        print("Gecersiz işaret girildi. Sadece + veya - giriniz.")
+except (ValueError, IndexError, Exception):  # Olasi bir hata durumunda assagidaki ifade ekrana bastiriliyor.
+    print("Gecersiz polinom girildi. Lutfen gecerli bir polinom giriniz.")
+
