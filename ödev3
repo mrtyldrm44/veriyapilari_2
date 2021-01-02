@@ -112,7 +112,7 @@ def ayir(pol):  # Liste kullanicindan alindiginda string olarak tutuluyor polino
                     index += 1
                     if pol[index] == "-" or pol[index] == "+":  # Index saga dogru giderken + - gibi bir ifade ile karsilastiginda durmasini sagliyoruz. orn pol: ...x^234-2x+4... diye uzuyor stringimiz xin sagindaki 234 almaya calisiyoruz ve 4 ten sonra goruldugu uzere - var onu gorunce durmasini burada sagliyoruz.
                         break
-                if not index < len(pol) - 1:  # Kodun sonunda sabit degerli kisimlarda ve polinom kisimlarinda - + durumlarinda indexi oynatmamiz gerekmekte olabiliyor bu yuzden burda programin hatasiz calisabilmesi icin bu kodu yazmak gerekiyor. Hata ararken buldugum ve yazdigim bir kod parcasi.
+                if not index < len(pol) - 1:  # Kodun sonunda sabit degerli kisimlarda ve polinom kisimlarinda - + durumlarinda indexi oynatmamiz gerekmekte olabiliyor bu yuzden burda programin hatasiz calisabilmesi icin bu kodu yazmak gerekiyor. 
                     index += 1
                     a_sonucu[deger1][value2] = int(pol[sag_index:index])  # Degerleri listemize attigimiz kisim burasi sag index x in yanindaki ^ karakterinin yanindaki sayidan baslayarak index e kadar yaziyor. orn pol: ...x^23+4... [[biliniyor(uc noktali kisim), 23]...] seklinde.
                 else:
